@@ -36,11 +36,15 @@ public final class FileCopierImpl implements dev.jonium.filecopy.FileCopier {
      *
      * @param a Path
      * @param b Path
-     * @throws IOException on lower level failure
      */
-    private void checkNotSame(Path a, Path b) throws IOException {
-        if (Files.exists(b) && Files.isSameFile(a, b)) {
-            throw new IllegalArgumentException("Source and Destination are the same file");
+    private void checkNotSame(Path a, Path b) {
+        try {
+            if (Files.exists(b) && Files.isSameFile(a, b)) {
+                throw new IllegalArgumentException("Source and Destination are the same file");
+            }
+        } catch (IOException e) {
+            // Shouldn't happen
+            throw new IllegalArgumentException("Failed identity check", e);
         }
     }
 
@@ -57,7 +61,7 @@ public final class FileCopierImpl implements dev.jonium.filecopy.FileCopier {
     }
 
     /**
-     * If a file exists, checks is  it writable
+     * If a file exists, checks is it writable
      *
      * @param file Path
      */
@@ -76,16 +80,12 @@ public final class FileCopierImpl implements dev.jonium.filecopy.FileCopier {
      * @return Result of the operation
      */
     public CopyOperation copy(@NonNull Path from, @NonNull Path to) {
-        try {
-            checkExists(from);
-            checkNotDirectories(from, to);
-            checkNotSame(from, to);
-            checkWritable(to);
-            try (var cm = new CopyManager(from, to)) {
-                return cm.doCopy(bufferSize);
-            }
-        } catch (IOException e) {
-            throw new IllegalArgumentException(e);
+        checkExists(from);
+        checkNotDirectories(from, to);
+        checkNotSame(from, to);
+        checkWritable(to);
+        try (var cm = new CopyManager(from, to)) {
+            return cm.doCopy(bufferSize);
         }
     }
 

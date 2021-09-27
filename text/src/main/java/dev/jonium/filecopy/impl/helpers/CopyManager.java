@@ -11,6 +11,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * Dispatcher for copy events
+ * <br>
+ * Doesn't serve much purpose, could be removed
+ */
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public final class CopyManager implements AutoCloseable {
 
@@ -26,6 +31,12 @@ public final class CopyManager implements AutoCloseable {
         writeThread = Executors.newSingleThreadExecutor();
     }
 
+    /**
+     * Prepare a copy operation with a specific buffer size
+     *
+     * @param queueSize {@link Integer#MAX_VALUE} on null
+     * @return {@link CopyOperation}
+     */
     public CopyOperation doCopy(Integer queueSize) {
         var queue = new LinkedBlockingQueue<Integer>(queueSize == null ? Integer.MAX_VALUE : queueSize);
         var startFlag = new CountDownLatch(1);

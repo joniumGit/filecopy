@@ -1,6 +1,5 @@
-package dev.jonium.filecopy.core;
+package dev.jonium.filecopy.impl;
 
-import dev.jonium.filecopy.impl.FileCopierImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,6 +9,9 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 
+/**
+ * Tests the inputs for the file copier
+ */
 @DisplayName("Common Tests")
 class TestCommon {
 
@@ -50,6 +52,14 @@ class TestCommon {
         Assertions.assertTrue(Assertions.assertDoesNotThrow(() -> Files.notExists(notExisting2)));
         Assertions.assertThrows(IllegalArgumentException.class, () -> copier.copy(notExisting1, notExisting2));
         Assertions.assertDoesNotThrow(() -> copier.copy(existing, notExisting2));
+    }
+
+    @Test
+    void testNotWritable() {
+        var existing = getExample();
+        var p = Assertions.assertDoesNotThrow(() -> Files.createTempFile("notWritable", "tmp"));
+        Assertions.assertTrue(p.toFile().setWritable(false));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> copier.copy(existing, p));
     }
 
 }

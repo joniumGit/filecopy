@@ -14,22 +14,39 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+/**
+ * Simple progress observing helper tracking the file sizes of source and target
+ */
 @AllArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public final class ProgressObserver {
 
     Path from;
     Path to;
+    /**
+     * Consumer for file copy progress.
+     * This will be called in the tracking thread, so manipulating JavaFX
+     * components needs the operations to be wrapped in {@link javafx.application.Platform#runLater(Runnable)}
+     */
     Consumer<Double> progressConsumer;
     ExecutorService executor = Executors.newSingleThreadExecutor();
     AtomicReference<Future<?>> task = new AtomicReference<>();
 
+    /**
+     * This gives a small delay to each loop
+     */
     @SneakyThrows(InterruptedException.class)
     private void waitABit() {
         Thread.sleep(30);
     }
 
+    /**
+     * Start the observer.
+     * <p>
+     * This will start pumping events to the supplied {@link #progressConsumer}
+     */
     public void start() {
+        if (task.get() != null) throw new IllegalStateException("Already running");
         task.set(executor.submit(() -> {
             try {
                 var size = Files.size(from);
@@ -53,9 +70,14 @@ public final class ProgressObserver {
         }));
     }
 
+    /**
+     * Stops this observer
+     */
     public void stop() {
         var running = task.get();
-        if (running != null) running.cancel(true);
+        if (running != null) {
+            running.cancel(true);
+        }
         executor.shutdownNow();
     }
 

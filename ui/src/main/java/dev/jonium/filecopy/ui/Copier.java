@@ -23,6 +23,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
+/**
+ * Controller for copying
+ */
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public final class Copier extends Application {
 
@@ -61,6 +64,12 @@ public final class Copier extends Application {
         view.stopProgress();
     }
 
+    /**
+     * Start a copy operation and progress observer
+     *
+     * @param from Path
+     * @param to   Path
+     */
     private void copy(Path from, Path to) {
         try {
             var operation = copyService.copy(from, to);
@@ -101,6 +110,11 @@ public final class Copier extends Application {
         }
     }
 
+    /**
+     * Load a copy service implementation and set buffer size
+     *
+     * @return Whether a copy service was found
+     */
     private boolean initCopyService() {
         var impl = ServiceLoader.load(FileCopier.class).findFirst();
         if (impl.isPresent()) {

@@ -1,5 +1,6 @@
 package dev.jonium.filecopy.impl.helpers;
 
+import lombok.NonNull;
 import lombok.SneakyThrows;
 
 import java.io.IOException;
@@ -12,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 final class WriteAction extends ActionBase implements Runnable {
 
-    public WriteAction(CountDownLatch startFlag, Path operatingPath, BlockingQueue<Integer> queue) {
+    public WriteAction(@NonNull CountDownLatch startFlag, @NonNull Path operatingPath, @NonNull BlockingQueue<Integer> queue) {
         super(startFlag, operatingPath, queue);
     }
 
@@ -21,7 +22,7 @@ final class WriteAction extends ActionBase implements Runnable {
     public void run() {
         startFlag.await();
         try (var io = Files.newBufferedWriter(operatingPath, StandardCharsets.UTF_8)) {
-            while ( !Thread.interrupted() ) {
+            while (!Thread.interrupted()) {
                 var c = queue.poll(1, TimeUnit.SECONDS);
                 if (c != null) {
                     if (c == -1) {

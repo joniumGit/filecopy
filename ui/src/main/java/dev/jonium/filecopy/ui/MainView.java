@@ -19,6 +19,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
+/**
+ * Main file copier view
+ */
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 final class MainView extends BorderPane {
 
@@ -111,6 +114,11 @@ final class MainView extends BorderPane {
         progress.prefWidthProperty().bind(bottom.widthProperty().add(copy.prefWidthProperty().negate()).add(cancel.prefWidthProperty().negate()));
     }
 
+    /**
+     * Callback to run on user clicking Copy
+     *
+     * @param copyAction Runnable
+     */
     void setCopyAction(BiConsumer<Path, Path> copyAction) {
         copy.setOnAction(e -> {
             var fromPath = Path.of(source.getText());
@@ -119,14 +127,27 @@ final class MainView extends BorderPane {
         });
     }
 
+    /**
+     * Callback to run on user clicking Cancel
+     *
+     * @param cancelAction Runnable
+     */
     void setCancelAction(Runnable cancelAction) {
         cancel.setOnAction(e -> cancelAction.run());
     }
 
+    /**
+     * Set ProgressBar progress
+     *
+     * @param percent progress in percent
+     */
     void setProgress(double percent) {
         progress.setProgress(percent);
     }
 
+    /**
+     * Enable progress bar and set to busy state
+     */
     void startProgress() {
         disableComponents();
         progress.setVisible(true);
@@ -134,6 +155,9 @@ final class MainView extends BorderPane {
         cancel.setDisable(false);
     }
 
+    /**
+     * Disable busy bar and set to free state
+     */
     void stopProgress() {
         progress.setVisible(false);
         progress.setProgress(0D);

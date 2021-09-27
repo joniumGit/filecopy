@@ -49,6 +49,9 @@ public final class CopyOperationImpl implements CopyOperation {
         }
     }
 
+    /**
+     * Waits for the reading and writing operations to complete and handles any cancellations or exceptions
+     */
     private void check() {
         try {
             reader.get();
@@ -56,13 +59,19 @@ public final class CopyOperationImpl implements CopyOperation {
             runTask(success.get());
             log.info("Copy succeeded");
         } catch (CancellationException e) {
+            // Was cancelled
             run(cancelled.get());
             log.info("Cancelled copy operation");
         } catch (InterruptedException e) {
+            // Cancelled / unexpected
+            // This shouldn't happen since the two futures will get cancelled first
+            // Only if this thread is interrupted then this might happen
+            cancel();
             run(cancelled.get());
             Thread.currentThread().interrupt();
             log.warning("Copy operation interrupted");
         } catch (ExecutionException e) {
+            // Actually failed something, unwrap the exception
             var ex = e.getCause() instanceof Exception ? (Exception) e.getCause() : e;
             var task = fail.get();
             if (task != null) {
